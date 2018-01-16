@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# Name: Change iPad display name in JSS.sh
+# Date: 11/16/2016
+# Karl Senger
+#
+
+jssAPIUsername=$4
+jssAPIPassword=$5
+jssAddress="https://yourcompany:8443"
+
+
+
+# The user is requested to enter the computer Asset Tag number within a text box.
+serialNumber=$(osascript -e '
+tell application "Self Service"
+   display dialog "Enter the Serial Number of the iPad." default answer ""
+    set serialNumber to the (text returned of the result)
+end tell')
+
+# The user is requested to enter the new iPad display name.
+displayName=$(osascript -e '
+tell application "Self Service"
+   display dialog "Type the new Display Name. Example = ####-MMS-Storage" default answer ""
+    set displayName to the (text returned of the result)
+end tell')
+
+
+#Submit data to the API
+    apiData="<mobile_device><general><display_name>$displayName</display_name><device_name>$displayName</device_name><name>$displayName</name></general></mobile_device>"
+    output=`curl -sS -k -i -u ${jssAPIUsername}:${jssAPIPassword} -X PUT -H "Content-Type: text/xml" -d "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>$apiData" ${jssAddress}/JSSResource/mobiledevices/serialnumber/$serialNumber`
+    
+exit 0
